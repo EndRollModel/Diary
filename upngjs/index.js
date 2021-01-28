@@ -11,9 +11,11 @@ bufferArray.push(oneBuffer, twoBuffer, threeBuffer);
 bufferArray.forEach((e) => {
     const decode = uPng.decode(e); // 解析
     const rbgImg = uPng.toRGBA8(decode); // 取得Rgba8內容
+    console.log(rbgImg[0])
     encodeArray.push(rbgImg[0]); // 取得Buffer
     delayArray.push(delay); // 寫入延遲
 });
+// 尺寸必須與設定的大小一致否則會出錯 透明會變成白色
 const encAction = uPng.encode(encodeArray, 300, 300, 0, delayArray); // 製作apngBuffer
-fs.writeFileSync('./output/uPng.png', new Uint8Array(encAction)); // 輸出
+fs.writeFileSync('./output/uPng02.png', new Uint8Array(encAction)); // 輸出
 

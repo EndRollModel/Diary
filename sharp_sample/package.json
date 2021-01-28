@@ -1,0 +1,14 @@
+{
+  "name": "sharp_sample",
+  "version": "1.0.0",
+  "description": "[sharp](https://www.npmjs.com/package/sharp)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sharp": "^0.27.0"
+  }
+}
