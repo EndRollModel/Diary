@@ -1,19 +1,36 @@
 class CsvParse {
-    constructor(file) {
+    constructor(file, option = null) {
         // 沒有逗號或是沒有換行符號 必不為Csv格式
         if (file.indexOf('\n') < 1 || file.indexOf(',') < 1) {
             throw new Error('file is not csv')
         } else {
-            this._file = this._parseFile(file)
+            this._file = this.#parseFile(file)
         }
     }
 
-    _parseFile(file) {
+    // 將資料整理成陣列
+    #parseFile(file) {
         const data = file.split(/\r?\n/);
         data.forEach((e, index) => {
             data[index] = e.split(',');
         })
-        return data
+        // 最後元素為空白移除
+        if (data[data.length - 1].length === 1 && data[data.length - 1][0] === '') {
+            data.pop();
+        }
+        //若有多餘的''或是""去除
+        data.forEach((e, index) => {
+            for (let i = 0; i < e.length; i++) {
+                if ((e[i].startsWith('\'') && e[i].endsWith('\'')) || (e[i].startsWith('"') && e[i].endsWith('"'))) {
+                    if (e[i].length > 2) {
+                        data[index][i] = e[i].slice(1, e[i].length -1)
+                    } else {
+                        data[index][i] = '';
+                    }
+                }
+            }
+        })
+        return data;
     }
 
     /**
@@ -23,10 +40,10 @@ class CsvParse {
     toJson() {
         if (this._file === undefined) return this._file;
         const jsonArray = [];
-        this._file.forEach((e, index)=>{
-            if(index === 0) return; // 跳過key
+        this._file.forEach((e, index) => {
+            if (index === 0) return; // 跳過key
             const eObject = {}
-            e.forEach((inElem, inIndex)=>{
+            e.forEach((inElem, inIndex) => {
                 eObject[this._file[0][inIndex]] = inElem;
             })
             jsonArray.push(eObject)
@@ -39,19 +56,56 @@ class CsvParse {
      * 若無資料則回傳 undefined
      * @param key
      */
-    toJsonKey(key) {
+    getJsonKey(key) {
         let jsonArray = [];
         const data = this.toJson();
-        if(Object.keys(data[0]).includes(key)){
-            data.forEach(e=>{
+        if (Object.keys(data[0]).includes(key)) {
+            data.forEach(e => {
                 const object = {};
                 object[key] = e[key]
                 jsonArray.push(object)
             })
-        }else {
+        } else {
             jsonArray = undefined;
         }
         return jsonArray
+    }
+
+
+    /**
+     * 製作xml資料
+     * @return {*|string[]}
+     * @description
+     * 最外層跟itemName需要名稱 若不給名則採用 'header' & 'item'
+     */
+    toXml(headerName = 'header', rowName = 'item'){
+        let xmlData = '';
+        if(this._file === undefined) return this._file;
+        const data = this._file;
+        xmlData += '<?xml version="1.0" encoding="UTF-8"?>\n'; // 加入標頭
+        data.forEach((e, index)=>{
+            if(index === 0){
+                xmlData += `<${headerName}>\n`
+                return;
+            }
+            for (let i = 0; i < e.length; i++) {
+                if(i === 0){
+                    xmlData += `\t<${rowName}>\n`
+                }
+                if(e[i] === ''){
+                    xmlData += `\t\t<${data[0][i]}/>\n`
+                }else {
+                    xmlData += `\t\t<${data[0][i]}>${e[i]}<\/${data[0][i]}>\n`
+                }
+                if(i === e.length-1){
+                    xmlData += `\t<\/${rowName}>\n`
+                }
+            }
+            if(index === data.length -1){
+                xmlData += `<\/${headerName}>\n`
+            }
+        })
+        return xmlData;
     }
 
     /**
@@ -66,7 +120,7 @@ class CsvParse {
     /** 取得總資料筆數
      * @return {number}
      */
-    size(){
+    size() {
         return this._file.length
     }
 
