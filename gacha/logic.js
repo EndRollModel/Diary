@@ -12,6 +12,7 @@ const object = [
     {name: 'sr', rate: 30},
     {name: 'n', rate: 60},
 ]
+
 /**
  * 普通抽卡
  * 邏輯部分
@@ -79,7 +80,13 @@ function startGACHA(rewardObj, getCount, loopCount, showLog = false) {
         finalCheck.forEach((e) => {
             e.rate = (e.count / (loopCount * getCount)) * 100
             e.abs = `${Math.round(Math.abs(((e.rate - e.defRate) / e.defRate) * 100) * 1000) / 1000}%`
-            outputMsg.push({Name:`${e.name}`,ALL_Count:`${e.count}`,Test_Rate:`${e.rate}%`, Default_Rate:`${e.defRate}%`,Error:`${e.abs}`})
+            outputMsg.push({
+                Name: `${e.name}`,
+                ALL_Count: `${e.count}`,
+                Test_Rate: `${e.rate}%`,
+                Default_Rate: `${e.defRate}%`,
+                Error: `${e.abs}`
+            })
             // console.log(`獎項名稱:${e.name}\n該次總計抽出:${e.count}次\n測試機率為:${e.rate}%\n原設定機率為:${e.defRate}%\n誤差為:${e.abs}\n`);
         })
         const endTime = Date.now();

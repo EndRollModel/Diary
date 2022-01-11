@@ -13,13 +13,13 @@ const getCount = 5;
 const getLoop = 1;
 
 // Raffle Drum 滾筒式籤筒
-function runStart (obj, getCount, getLoop = 1, showLog = null) {
+function runStart(obj, getCount, getLoop = 1, showLog = null) {
     const final = [];
     let getLen = 0;
     for (let i = 0; i < getLoop; i++) {
         const raffleDrum = []; //獎池
         const awarded = []; // 抽出來的人
-        obj.forEach((elem)=>{
+        obj.forEach((elem) => {
             for (let i = 0; i < elem.count; i++) {
                 raffleDrum.push(elem.name)
             }
@@ -39,11 +39,11 @@ function runStart (obj, getCount, getLoop = 1, showLog = null) {
         }
         final.push(awarded);
     }
-    if(showLog){
+    if (showLog) {
         console.table(final);
         console.log(`總計內容數 : ${getLen}`);
     }
     return final
 }
 
-runStart(object, getCount, getLoop,true);
+runStart(object, getCount, getLoop, true);
