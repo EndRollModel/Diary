@@ -9,29 +9,90 @@ class CsvParse {
     }
 
     // 將資料整理成陣列
-    #parseFile(file) {
-        const data = file.split(/\r?\n/);
-        data.forEach((e, index) => {
-            data[index] = e.split(',');
-        })
-        // 最後元素為空白移除
-        if (data[data.length - 1].length === 1 && data[data.length - 1][0] === '') {
-            data.pop();
-        }
-        //若有多餘的''或是""去除
-        data.forEach((e, index) => {
-            for (let i = 0; i < e.length; i++) {
-                if ((e[i].startsWith('\'') && e[i].endsWith('\'')) || (e[i].startsWith('"') && e[i].endsWith('"'))) {
-                    if (e[i].length > 2) {
-                        data[index][i] = e[i].slice(1, e[i].length -1)
+    #parseFile(file){
+        const allData = [];
+        const newLineIndex = file.search(/\r?\n/);
+        const keyString = file.substring(0, newLineIndex);
+        const keys = keyString.split(',');
+
+        const splitFile = file.split(/\r\n/g);
+        splitFile.shift(); // 移除keys
+        allData.push(keys)
+        console.log(splitFile)
+        const keyCount = keys.length;
+        splitFile.forEach((e) => {
+            const splitData = e.split(',');
+            // console.log(splitData)
+            if (splitData.length === keyCount) {
+                const data = [];
+                splitData.forEach((el)=>{
+                    let formatStr = el;
+                    formatStr = formatStr.replace(/""/g,'｜｜');
+                    formatStr = formatStr.replace(/"/g,'');
+                    formatStr = formatStr.replace(/｜｜/g, '"');
+                    data.push(formatStr)
+                })
+                allData.push(data);
+            } else {
+                //檢查是否有雙引號
+                const data = [];
+                let tempCheck = false;
+                let tempString = '';
+                splitData.forEach((el,index) => {
+                    if (tempCheck) {
+                        if (el[el.length - 1] === '"') {
+                            tempString += el;
+                            tempCheck = false;
+                            tempString = tempString.replace(/""/g,'｜｜');
+                            tempString = tempString.replace(/"/g,'');
+                            tempString = tempString.replace(/｜｜/g, '"');
+                            data.push(tempString)
+                        } else {
+                            tempString += el;
+                        }
                     } else {
-                        data[index][i] = '';
+                        // 換行逗號都會使用""處理
+                        if (el[0] === '"'){
+                            tempString = el;
+                            tempCheck = true;
+                        }else {
+                            el = el.replace(/""/g,'｜｜');
+                            el = el.replace(/"/g,'');
+                            el = el.replace(/｜｜/g, '"');
+                            data.push(el)
+                        }
                     }
-                }
+                })
+                allData.push(data);
             }
         })
-        return data;
+        return allData;
     }
+
+    // 舊版寫法 留作紀念
+    // #parseFile(file) {
+    //     const data = file.split(/\r?\n/);
+    //     data.forEach((e, index) => {
+    //         data[index] = e.split(',');
+    //     })
+    //     // 最後元素為空白移除
+    //     if (data[data.length - 1].length === 1 && data[data.length - 1][0] === '') {
+    //         data.pop();
+    //     }
+    //     //若有多餘的''或是""去除
+    //     data.forEach((e, index) => {
+    //         for (let i = 0; i < e.length; i++) {
+    //             if ((e[i].startsWith('\'') && e[i].endsWith('\'')) || (e[i].startsWith('"') && e[i].endsWith('"'))) {
+    //                 if (e[i].length > 2) {
+    //                     data[index][i] = e[i].slice(1, e[i].length -1)
+    //                 } else {
+    //                     data[index][i] = '';
+    //                 }
+    //             }
+    //         }
+    //     })
+    //     return data;
+    // }
 
     /**
      * 將資料轉為Json格式
